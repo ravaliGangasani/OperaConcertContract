@@ -55,22 +55,11 @@ export default async function deployApi(referencesPromise, {bundleSource, pathRe
     const inviteIssuer = await E(zoe).getInviteIssuer();
     const getInstanceHandle = makeGetInstanceHandle(inviteIssuer);
     const instanceHandle = await getInstanceHandle(adminInvite);
-
-    const {publicAPI, terms} = await E(zoe).getInstanceRecord(instanceHandle);
-    console.log("publicAPI: ", publicAPI)
-
-    const pursesArray = await E(wallet).getPurses();
-    const purses = new Map(pursesArray);
-
-    const moolaPurse = purses.get('Fun budget');
-    console.log("moolaPurse: Alice", moolaPurse)
-    
+    const {publicAPI, terms} = await E(zoe).getInstanceRecord(instanceHandle)
     const invite = await E(publicAPI).makeBuyerInvite()
-    const aliceInvite = await E(inviteIssuer).claim(invite)
-
-    const availableTickets = await E(publicAPI).getAvailableTickets()
-    console.log(availableTickets)
-
+    const buyerInvite = await E(inviteIssuer).claim(invite)
+    console.log(invite)
+    console.log(await E(inviteIssuer).isLive(buyerInvite))
 
     const {
         payout: adminPayoutP,
@@ -95,7 +84,7 @@ export default async function deployApi(referencesPromise, {bundleSource, pathRe
     // Spawn the running code
     const brandPs = [];
     const keywords = [];
-    Object.entries(issuerKeywordRecord).map(async ([keyword, issuer]) => {
+    Object.entries(issuerKeywordRecords).map(async ([keyword, issuer]) => {
         keywords.push(keyword);
         brandPs.push(E(issuer).getBrand());
     });
